@@ -1,0 +1,17 @@
+*.PDF
+*.pdf
+
+.venv/
+.uv-cache/
+.hf-cache/
+.surya-home/
+.surya-cache/
+.glm-home/
+
+__pycache__/
+*.pyc
+
+test_pdfs/
+surya_output/
+glm_input/
+glm_output/
