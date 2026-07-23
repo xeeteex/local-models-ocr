@@ -2,10 +2,11 @@
 
 This repo runs OCR locally on Apple Silicon using `llama.cpp`.
 
-It has two OCR paths:
+It has three OCR paths:
 
 - Surya OCR: best full workflow here; supports PDF, PNG, JPG, and folders.
 - GLM-OCR: runs through `llama-cli`; accepts images, so PDFs are rendered page-by-page first.
+- LightOnOCR: runs through `llama-cli`; accepts images, so PDFs are rendered page-by-page first.
 
 ## 1. Install system tools
 
@@ -133,7 +134,47 @@ glm_input/<file-name>_page1.png
 glm_output/<file-name>_page1.txt
 ```
 
-## 5. What each script does
+## 5. LightOnOCR with Transformers
+
+The tested LightOn path uses the official `lightonai/LightOnOCR-2-1B` Transformers model.
+
+```bash
+scripts/run_lighton_transformers_pdf_ocr.sh test_pdfs/nepalibad.PDF 0
+```
+
+It writes:
+
+```text
+lighton_transformers_output/<file-name>_page1.txt
+```
+
+For an existing PNG/JPG:
+
+```bash
+scripts/run_lighton_transformers_img_ocr.sh lighton_transformers_input/nepalibad_page1.png
+```
+
+## 6. What each script does
+
+## 6. Local LoRA smoke test for Surya
+
+This is not full QLoRA training. It only checks whether this machine can load the Surya Transformers model, attach tiny LoRA adapters, and complete one forward/backward pass.
+
+Install PEFT first:
+
+```bash
+UV_CACHE_DIR=.uv-cache uv pip install peft
+```
+
+Run the smoke test on one rendered PDF page:
+
+```bash
+scripts/run_surya_lora_smoke_test.sh test_pdfs/nepalibad5.PDF 0
+```
+
+If this fails with memory or speed problems, full local QLoRA is not practical on this device.
+
+## 7. What each script does
 
 ```text
 scripts/run_surya_ocr.sh
@@ -159,3 +200,43 @@ scripts/run_glm_img_ocr.sh
 
 Runs GLM-OCR directly on a PNG/JPG image.
 
+```text
+scripts/run_lighton_transformers_pdf_ocr.sh
+```
+
+Renders one PDF page to PNG, then runs official LightOnOCR-2 with Transformers.
+
+```text
+scripts/run_lighton_transformers_img_ocr.sh
+```
+
+Runs official LightOnOCR-2 with Transformers on a PNG/JPG image.
+
+```text
+scripts/run_surya_lora_smoke_test.sh
+```
+
+Runs a tiny local LoRA feasibility check for the Surya Transformers model.
+
+## 8. Caches and generated files
+
+These folders are local/generated and should not be committed:
+
+```text
+.venv/
+.uv-cache/
+.hf-cache/
+.surya-home/
+.surya-cache/
+.glm-home/
+surya_output/
+glm_input/
+glm_output/
+lighton_transformers_input/
+lighton_transformers_output/
+lora_smoke_input/
+lora_smoke_output/
+test_pdfs/
+```
+
+The first model run can take longer because it downloads model files. Later runs reuse the cache.

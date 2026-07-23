@@ -15,3 +15,7 @@ test_pdfs/
 surya_output/
 glm_input/
 glm_output/
+lighton_transformers_input/
+lighton_transformers_output/
+lora_smoke_input/
+lora_smoke_output/
